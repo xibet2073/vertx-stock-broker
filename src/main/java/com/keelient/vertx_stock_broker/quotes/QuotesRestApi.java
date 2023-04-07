@@ -2,6 +2,7 @@ package com.keelient.vertx_stock_broker.quotes;
 
 import com.keelient.vertx_stock_broker.assets.Asset;
 import com.keelient.vertx_stock_broker.assets.AssetsRestApi;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class QuotesRestApi {
@@ -31,8 +33,17 @@ public class QuotesRestApi {
       final String assetParam = context.pathParam("asset");
       LOG.debug("Asset parameter: {}", assetParam);
 
-      final var quote = cachedQuotes.get(assetParam);
-      final JsonObject response = quote.toJsonObject();
+      final var mayBeQuote = Optional.ofNullable(cachedQuotes.get(assetParam));
+      if (mayBeQuote.isEmpty()) {
+        context.response()
+          .setStatusCode(HttpResponseStatus.NOT_FOUND.code())
+          .end(new JsonObject()
+            .put("message", "quote for asset " + assetParam + " not avalilable")
+            .put("path", context.normalizedPath())
+            .toBuffer()
+          );
+      }
+      final JsonObject response = mayBeQuote.get().toJsonObject();
       LOG.info("Path {} responds with {}", context.normalizedPath(), response);
       context.response().end(response.toBuffer());
       }
