@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 public class MainVerticle extends AbstractVerticle {
   public static final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
+  public static final int PORT = 8888;
+
   public static void main(String[] args) {
     var vertx = Vertx.vertx();
     vertx.exceptionHandler(error -> {
@@ -34,7 +36,7 @@ public class MainVerticle extends AbstractVerticle {
     vertx.createHttpServer()
       .requestHandler(restApi)
       .exceptionHandler(error -> LOG.error("HTTP Server error: ", error))
-      .listen(8888, http -> {
+      .listen(PORT, http -> {
       if (http.succeeded()) {
         startPromise.complete();
         LOG.info("HTTP server started on port 8888");
