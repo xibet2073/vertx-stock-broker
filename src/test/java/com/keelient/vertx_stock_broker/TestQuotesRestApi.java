@@ -55,7 +55,7 @@ public class TestQuotesRestApi {
       .onComplete(testContext.succeeding(response -> {
         var json = response.bodyAsJsonObject();
         LOG.info("Response: {}", json);
-        assertEquals("{\"message\":\"quote for asset UNK not avalilable\",\"path\":\"/quotes/UNK\"}", json.encode());
+        assertEquals("{\"message\":\"quote for asset UNKNOWN not avalilable\",\"path\":\"/quotes/UNKNOWN\"}", json.encode());
         assertEquals(404, response.statusCode());
         testContext.completeNow();
       }));

@@ -62,6 +62,37 @@ public class TestWatchListRestApi {
       });
   }
 
+  @Test
+  void addsAndDeleteWatchListForAccount(Vertx vertx, VertxTestContext testContext) throws Throwable {
+    WebClient webClient = WebClient.create(
+      vertx,
+      new WebClientOptions()
+        .setDefaultPort(MainVerticle.PORT)
+    );
+    final UUID uuid = UUID.randomUUID();
+    webClient.put("/account/watchlist/" + uuid.toString())
+      .sendJson(getBody())
+      .onComplete(testContext.succeeding(response -> {
+        var json = response.bodyAsJsonObject();
+        LOG.info("Response: {}", json);
+        assertEquals("{\"assets\":[{\"name\":\"AMZN\"},{\"name\":\"TSLA\"},{\"name\":\"AAPL\"}]}", json.encode());
+        assertEquals(200, response.statusCode());
+        testContext.completeNow();
+      })).compose(next -> {
+        webClient.delete("/account/watchlist/" + uuid.toString())
+          .send()
+          .onComplete(testContext.succeeding(
+            response -> {
+              var json = response.bodyAsJsonObject();
+              LOG.info("Response: DELETE {}", json);
+              assertEquals("{\"assets\":[{\"name\":\"AMZN\"},{\"name\":\"TSLA\"},{\"name\":\"AAPL\"}]}", json.encode());
+              assertEquals(200, response.statusCode());
+              testContext.completeNow();
+            }
+          ));
+        return Future.succeededFuture();
+      });
+  }
   private JsonObject getBody() {
     return new WatchList(Arrays.asList(
       new Asset("AMZN"),
