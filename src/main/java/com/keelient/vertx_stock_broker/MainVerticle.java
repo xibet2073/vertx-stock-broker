@@ -1,6 +1,7 @@
 package com.keelient.vertx_stock_broker;
 
 import com.keelient.vertx_stock_broker.assets.AssetsRestApi;
+import com.keelient.vertx_stock_broker.quotes.QuotesRestApi;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -32,6 +33,7 @@ public class MainVerticle extends AbstractVerticle {
     Router restApi = Router.router(vertx);
     restApi.route().failureHandler(handleFailure());
     AssetsRestApi.attach(restApi);
+    QuotesRestApi.attach(restApi);
 
     vertx.createHttpServer()
       .requestHandler(restApi)
